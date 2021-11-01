@@ -95,7 +95,34 @@ jobs:
               npm install
               npm audit fix --audit-level=critical --force
               npm audit --audit-level=critical
+          
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli:2.3.2
+    steps:
+      - checkout
+      - run:
+          name: deploy-infrastructure
+          command: |
+              sudo apt install tar gzip
 
+      - run:
+          name: Ensure backend infrastructure exist
+          command: |
+              aws cloudformation deploy \
+                  --template-file .circleci/files/backend.yml \
+                  --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                  --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+                  --tags project=udapeople
+
+      - run:
+          name: Ensure backend infrastructure exist
+          command: |
+              aws cloudformation deploy \
+                  --template-file .circleci/files/frontend.yml \
+                  --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                  --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+                  --tags project=udapeople
 
 
 workflows:
@@ -109,5 +136,6 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
+#      - scan-backend:
+#          requires: [build-backend]
+      - deploy-infrastructure
