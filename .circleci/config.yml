@@ -159,8 +159,33 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - cdond-c3-projectstarter/.circleci/ansible/inventory.txt
+            - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure  
+  
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "2d:0a:88:cc:e4:44:e5:b1:c9:66:c1:de:76:9d:2e:90"
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl
+            pip install awscli
+      - run:
+          name: Set up inventory file
+          command: |
+            cd .circleci/ansible
+            URLS=$(curl -H "token: bb088f1b4d49c6ab9bc1ebe2e29ee86f08e99f33" --request GET https://api.memstash.io/values/udapeoplebackendip)
+            echo "$URLS" >> inventory.txt
+            cat inventory.txt
+
+      # Here's where you will add some code to rollback on failure      
 
 workflows:
   default:
@@ -176,3 +201,4 @@ workflows:
 #      - scan-backend:
 #          requires: [build-backend]
       - deploy-infrastructure
+      - configure-infrastructure
