@@ -156,11 +156,11 @@ jobs:
               aws ec2 describe-instances \
                   --query 'Reservations[*].Instances[*].PublicIpAddress' \
                   --output text >> .circleci/ansible/inventory.txt
-#              backendip=$(aws ec2 describe-instances \
-#                --query "Reservations[*].Instances[*].PublicIpAddress" \
-#                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-#                --output=text)
-#              curl -H "Content-Type: text/plain" -H "token: 81127b7f-5fe2-4404-b65f-5d1f9e986044" --request PUT --data $backendip https://api.memstash.io/values/udapeople
+              backendip=$(aws ec2 describe-instances \
+                --query "Reservations[*].Instances[*].PublicIpAddress" \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --output=text)
+              curl -H "Content-Type: text/plain" -H "token: 81127b7f-5fe2-4404-b65f-5d1f9e986044" --request PUT --data $backendip https://api.memstash.io/values/udapeople
       - persist_to_workspace:
           root: ~/
           paths:
@@ -186,9 +186,36 @@ jobs:
           name: Set up inventory file
           command: |
             cd .circleci/ansible
-            #URLS=$(curl -H "token: 81127b7f-5fe2-4404-b65f-5d1f9e986044" --request GET https://api.memstash.io/values/udapeople)
-            #echo "$URLS" >> inventory.txt
+            URLS=$(curl -H "token: 81127b7f-5fe2-4404-b65f-5d1f9e986044" --request GET https://api.memstash.io/values/udapeople)
+            echo "$URLS" >> inventory.txt
             cat inventory.txt
+        
+      - run:
+          name: Configure server with ansible
+          no_output_timeout: 30m
+          command: |
+            echo "1st Down HERE"
+            echo $TYPEORM_DATABASE
+            echo "1st Up HERE"
+            echo ENVIRONMENT=production > "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            echo "2nd Down HERE"
+            echo $TYPEORM_DATABASE
+            cat "backend/.env"
+            echo "2nd Up HERE"
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+            cat inventory.txt
+            
 
       # Here's where you will add some code to rollback on failure      
 
