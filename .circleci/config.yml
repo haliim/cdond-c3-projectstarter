@@ -213,7 +213,7 @@ jobs:
             cat "backend/.env"
             echo "2nd Up HERE"
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i .circleci/inventory.txt .circleci/ansible/configure-server.yml
             cat inventory.txt
             
 
