@@ -253,15 +253,15 @@ jobs:
             export
             npm install
             npm run build
-            touch migrated_results.txt
-            npm run migrations > migrated_results.txt
-            cat migrated_results.txt
+            touch mig_results.txt
+            npm run migrations > mig_results.txt
+            cat mig_results.txt
       - run:
           name: save migrations
           command: |
             echo ${CIRCLE_WORKFLOW_ID:0:7}
             cd backend
-            if grep "has been executed successfully" migrated_results.txt
+            if grep "has been executed successfully" mig_results.txt
             then
             echo "DB migration was successful"
             curl -H "Content-Type: text/plain" -H "token: 81127b7f-5fe2-4404-b65f-5d1f9e986044" --request PUT --data "1" https://api.memstash.io/values/migration
@@ -331,3 +331,5 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
