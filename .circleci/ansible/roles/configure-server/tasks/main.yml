@@ -1,4 +1,8 @@
 ---
+  - name: Print IP Address
+    shell:  "pwd"
+    register: print_result
+
   #show the output on the user/us Cli
   - name: print message
     debug:
