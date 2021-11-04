@@ -293,7 +293,7 @@ jobs:
             echo "DB migration has failed"
             curl -H "Content-Type: text/plain" -H "token: 81127b7f-5fe2-4404-b65f-5d1f9e986044" --request PUT --data "0" https://api.memstash.io/values/migration
             fi
-     # Here's where you will add some code to rollback on failure       
+     # Here's where you will add some code to rollback on failure        
 
   deploy-frontend:
     docker:
