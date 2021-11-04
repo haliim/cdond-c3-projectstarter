@@ -259,7 +259,7 @@ jobs:
             touch mig_results.txt
             echo "touch mig_results.txt"
             npm run migrations > mig_results.txt
-            echo "npm run migrations > mig_results.txt"
+            echo "npm run migrations >> mig_results.txt"
             cat mig_results.txt
             echo "cat mig_results.txt"
       - run:
