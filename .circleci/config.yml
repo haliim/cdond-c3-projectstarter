@@ -305,7 +305,7 @@ jobs:
           command: |
             yum -y install tar gzip 
             echo "yum -y install tar gzip "
-            curl -sL https://deb.nodesource.com/setup_14.x | bash -
+            curl -sL https://rpm.nodesource.com/setup_14.x | bash -
             echo "curl -sL https://rpm.nodesource.com/setup_lts.x | bash -"
             yum -y install nodejs 
             echo "yum -y install nodejs"
