@@ -336,7 +336,53 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-    deploy-backend:
+
+  deploy-backend:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+              - "01:66:e6:03:bb:e5:fd:cf:a8:36:86:55:89:bb:60:3e"
+      # attach workspace
+      - attach_workspace:
+            at: ~/project
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl zip
+            pip install awscli
+      - run:
+          name: create .env files
+          command: |
+            echo NODE_ENV=production > "backend/.env"
+            echo VERSION=1 >> "backend/.env"
+            echo ENVIROMENT=development >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+      - run:
+          name: zip backend files
+          command: |
+            ls -l -a
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            tar czf backend.tar.gz backend
+            ls -l -a
+            #cp backend.tar.gz .circleci/ansible/roles/deploy/files
+            #cp backend.tar.gz ~/project/
       - run:
           name: Deploy backend
           command: |
