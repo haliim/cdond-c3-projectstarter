@@ -13,6 +13,23 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
 
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            STATUS=$(curl -H "Content-Type: text/plain" -H "token: e82f2c03-85db-4294-941c-178d1071af39" --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7})
+            if(( $STATUS==0 )); # 0 means failed migration
+            then
+            cd ~/project/backend
+            npm install
+            npm run migrations:revert
+            fi
 
 jobs:
   build-frontend:
