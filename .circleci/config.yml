@@ -28,7 +28,6 @@ jobs:
             cd frontend
             npm install
             npm run build
-#            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -228,7 +227,7 @@ jobs:
           name: install awscli
           command: |
             sudo apt-get -y -qq update
-            sudo apt-get -qq install awscli
+            sudo apt-get -qq install awscli            
             sudo apt-get -y -qq install python3
       - run:
           name: create .env files
@@ -315,14 +314,14 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-#      - test-frontend:
-#          requires: [build-frontend]
-#      - test-backend:
-#          requires: [build-backend]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-#      - scan-backend:
-#          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
       - deploy-infrastructure:
           requires: [build-backend, build-frontend]
       - configure-infrastructure:
