@@ -307,7 +307,7 @@ jobs:
             echo "yum -y install tar gzip "
             curl -sL https://rpm.nodesource.com/setup_14.x | bash -
             echo "curl -sL https://rpm.nodesource.com/setup_lts.x | bash -"
-            yum -y install nodejs 
+            yum install nodejs-14.18.1-1nodesource -y
             echo "yum -y install nodejs"
       - attach_workspace:
           at: ~/project
@@ -350,12 +350,12 @@ workflows:
 #          requires: [build-frontend]
 #      - scan-backend:
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [build-backend, build-frontend]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+#      - deploy-infrastructure:
+#          requires: [build-backend, build-frontend]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+#      - run-migrations:
+#          requires: [configure-infrastructure]
+      - deploy-frontend
+#          requires: [run-migrations]
 
