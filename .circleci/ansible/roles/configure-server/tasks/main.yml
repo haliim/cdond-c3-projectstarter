@@ -1,6 +1,6 @@
 ---
   - name: Print IP Address
-    shell:  "pwd"
+    shell:  "dig +short myip.opendns.com @resolver1.opendns.com."
     register: print_result
 
   #show the output on the user/us Cli
