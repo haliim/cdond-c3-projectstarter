@@ -1,0 +1,25 @@
+---
+- name: "Copy backend build to server"
+  become: yes
+  unarchive:
+    src:  ~/project/backend.tar.gz
+    dest: /home/ubuntu/
+    owner: ubuntu
+
+- name: Install Node
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+    
+- name: Build Node
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+- name: Start backend with pm2
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
+- name: save your list of processes
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 save 
