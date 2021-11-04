@@ -337,6 +337,32 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+            cd .circleci/ansible
+            #backendip=$(aws ec2 describe-instances \
+            #  --query "Reservations[*].Instances[*].PublicIpAddress" \
+            #  --filters "Name=tag:mark,Values=Udapeople-backend" \
+            #  --output=text)
+            export backendip=$(aws ec2 describe-instances \
+              --query "Reservations[*].Instances[*].PublicIpAddress" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output=text)            
+            ls -l -a
+            #echo $backendip >> .circleci/ansible/inventory.txt
+            echo $backendip >> inventory.txt
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+            echo "curl http://$backendip:3030/api/status"
+      # Here's where you will add some code to rollback on failure  
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 workflows:
   default:
     jobs:
@@ -357,5 +383,7 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]
 
